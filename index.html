@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Species Classifier | Identify Any Tree</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dropzone {
+            border: 2px dashed #4ade80;
+            transition: all 0.3s ease;
+        }
+        .dropzone.active {
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+        .tree-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .tree-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .leaf-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234ade80' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 leaf-pattern">
+    <header class="bg-green-700 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-tree text-3xl"></i>
+                    <h1 class="text-2xl font-bold">TreeSpecies AI</h1>
+                </div>
+                <nav>
+                    <ul class="flex space-x-6">
+                        <li><a href="#" class="hover:text-green-200 transition">Home</a></li>
+                        <li><a href="#" class="hover:text-green-200 transition">Species Library</a></li>
+                        <li><a href="#" class="hover:text-green-200 transition">About</a></li>
+                        <li><a href="#" class="hover:text-green-200 transition">Contact</a></li>
+                    </ul>
+                </nav>
+                <button class="md:hidden">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <section class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-green-800 mb-4">Identify Any Tree Species</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Upload a photo of a tree, leaf, bark, or flower and our AI will identify the species and provide detailed information about it.
+            </p>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-12">
+            <div class="max-w-4xl mx-auto">
+                <div id="upload-section" class="text-center">
+                    <div class="dropzone rounded-xl p-12 mb-6 cursor-pointer" id="dropzone">
+                        <i class="fas fa-cloud-upload-alt text-5xl text-green-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Drag & Drop Your Tree Image Here</h3>
+                        <p class="text-gray-500 mb-4">or click to browse your files</p>
+                        <input type="file" id="file-input" accept="image/*" class="hidden">
+                        <button id="browse-btn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-full transition">
+                            Select Image
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Supported formats: JPG, PNG, WEBP (Max 10MB)
+                    </div>
+                </div>
+
+                <div id="processing-section" class="hidden text-center py-8">
+                    <div class="mb-6">
+                        <div class="w-24 h-24 mx-auto mb-4 relative">
+                            <div class="absolute inset-0 rounded-full bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-spinner fa-spin text-green-600 text-3xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Analyzing Your Tree Image</h3>
+                        <p class="text-gray-500">Our AI is examining the features to identify the species...</p>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 max-w-md mx-auto">
+                        <div id="progress-bar" class="progress-bar bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="result-section" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-green-800">Identification Results</h3>
+                        <button id="new-upload" class="text-green-600 hover:text-green-800 font-medium flex items-center">
+                            <i class="fas fa-redo mr-2"></i> Analyze Another Tree
+                        </button>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="md:col-span-1">
+                            <div class="bg-gray-100 rounded-lg overflow-hidden">
+                                <img id="result-image" src="" alt="Uploaded tree" class="w-full h-auto">
+                            </div>
+                            <div class="mt-4 text-center">
+                                <button id="save-result" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-full transition mr-3">
+                                    <i class="fas fa-save mr-2"></i> Save Result
+                                </button>
+                                <button id="share-result" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full transition">
+                                    <i class="fas fa-share-alt mr-2"></i> Share
+                                </button>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                <h4 class="text-xl font-bold text-gray-800 mb-4" id="tree-name">Tree Name</h4>
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-500">Scientific Name</div>
+                                        <div class="font-semibold" id="scientific-name">---</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-500">Family</div>
+                                        <div class="font-semibold" id="tree-family">---</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-500">Native Range</div>
+                                        <div class="font-semibold" id="native-range">---</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-500">Conservation Status</div>
+                                        <div class="font-semibold" id="conservation-status">---</div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="text-sm font-medium text-gray-500 mb-1">Description</div>
+                                    <p class="text-gray-700" id="tree-description">---</p>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="text-sm font-medium text-gray-500 mb-1">Ecological Importance</div>
+                                    <p class="text-gray-700" id="ecological-importance">---</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">Detailed Characteristics</h4>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div>
+                                <h5 class="font-semibold text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-leaf text-green-500 mr-2"></i> Leaves
+                                </h5>
+                                <p class="text-gray-600 text-sm" id="leaves-info">---</p>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-tree text-green-500 mr-2"></i> Bark
+                                </h5>
+                                <p class="text-gray-600 text-sm" id="bark-info">---</p>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-spa text-green-500 mr-2"></i> Flowers & Fruits
+                                </h5>
+                                <p class="text-gray-600 text-sm" id="flowers-fruits-info">---</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">Similar Species</h4>
+                        <p class="text-gray-600 mb-4">These trees are often confused with the identified species:</p>
+                        <div class="grid md:grid-cols-3 gap-4" id="similar-species">
+                            <!-- Similar species will be added here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-green-800 mb-6 text-center">Recently Identified Trees</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="tree-card bg-white rounded-xl shadow-md overflow-hidden fade-in">
+                    <img src="https://images.unsplash.com/photo-1491147334573-44cbb4602274?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Oak Tree" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <h3 class="font-bold text-xl mb-2 text-gray-800">Northern Red Oak</h3>
+                        <p class="text-gray-600 text-sm mb-3"><span class="font-medium">Quercus rubra</span> - Native to North America</p>
+                        <div class="flex justify-between items-center">
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Common</span>
+                            <button class="text-green-600 hover:text-green-800 text-sm font-medium">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-card bg-white rounded-xl shadow-md overflow-hidden fade-in">
+                    <img src="https://images.unsplash.com/photo-1512428813834-c702c79822a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Maple Tree" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <h3 class="font-bold text-xl mb-2 text-gray-800">Sugar Maple</h3>
+                        <p class="text-gray-600 text-sm mb-3"><span class="font-medium">Acer saccharum</span> - Eastern North America</p>
+                        <div class="flex justify-between items-center">
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Common</span>
+                            <button class="text-green-600 hover:text-green-800 text-sm font-medium">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-card bg-white rounded-xl shadow-md overflow-hidden fade-in">
+                    <img src="https://images.unsplash.com/photo-1598188306155-25ff400f21a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Baobab Tree" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <h3 class="font-bold text-xl mb-2 text-gray-800">African Baobab</h3>
+                        <p class="text-gray-600 text-sm mb-3"><span class="font-medium">Adansonia digitata</span> - Sub-Saharan Africa</p>
+                        <div class="flex justify-between items-center">
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Protected</span>
+                            <button class="text-green-600 hover:text-green-800 text-sm font-medium">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-green-50 rounded-xl p-8 mb-12">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl font-bold text-green-800 mb-4">Why Identify Trees?</h2>
+                <p class="text-gray-700 mb-8">
+                    Tree identification helps in conservation efforts, ecological studies, and personal knowledge. 
+                    Knowing tree species is essential for biodiversity monitoring, sustainable forestry, and understanding ecosystem health.
+                </p>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <i class="fas fa-leaf text-4xl text-green-600 mb-4"></i>
+                        <h3 class="font-semibold text-lg mb-2">Biodiversity</h3>
+                        <p class="text-gray-600 text-sm">Identify and document tree species to contribute to biodiversity databases.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <i class="fas fa-book text-4xl text-green-600 mb-4"></i>
+                        <h3 class="font-semibold text-lg mb-2">Education</h3>
+                        <p class="text-gray-600 text-sm">Learn about the trees in your environment and their ecological roles.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <i class="fas fa-heart text-4xl text-green-600 mb-4"></i>
+                        <h3 class="font-semibold text-lg mb-2">Conservation</h3>
+                        <p class="text-gray-600 text-sm">Help protect endangered species by identifying and reporting them.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-tree mr-2"></i> TreeSpecies AI
+                    </h3>
+                    <p class="text-green-200 text-sm">
+                        Using artificial intelligence to help identify and understand tree species worldwide.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-green-200 hover:text-white transition">Home</a></li>
+                        <li><a href="#" class="text-green-200 hover:text-white transition">Species Library</a></li>
+                        <li><a href="#" class="text-green-200 hover:text-white transition">How It Works</a></li>
+                        <li><a href="#" class="text-green-200 hover:text-white transition">Contribute</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-green-200 hover:text-white transition">Tree Care Guide</a></li>
+                        <li><a href="#" class="text-green-200 hover:text-white transition">Conservation Tips</a></li>
+                        <li><a href="#" class="text-green-200 hover:text-white transition">Research Papers</a></li>
+                        <li><a href="#" class="text-green-200 hover:text-white transition">API Access</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Connect</h4>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-green-200 hover:text-white text-xl transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-green-200 hover:text-white text-xl transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-green-200 hover:text-white text-xl transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-green-200 hover:text-white text-xl transition"><i class="fab fa-github"></i></a>
+                    </div>
+                    <p class="text-green-200 text-sm">
+                        Subscribe to our newsletter for updates and tree facts.
+                    </p>
+                    <div class="mt-3 flex">
+                        <input type="email" placeholder="Your email" class="px-3 py-2 text-gray-800 rounded-l focus:outline-none w-full">
+                        <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-r transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-6 border-t border-green-700 text-center text-green-300 text-sm">
+                <p>© 2023 TreeSpecies AI. All rights reserved. | <a href="#" class="hover:text-white transition">Privacy Policy</a> | <a href="#" class="hover:text-white transition">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample tree database
+        const treeDatabase = {
+            "oak": {
+                commonName: "Northern Red Oak",
+                scientificName: "Quercus rubra",
+                family: "Fagaceae",
+                nativeRange: "Eastern North America",
+                conservationStatus: "Least Concern",
+                description: "The Northern Red Oak is a deciduous tree growing to 20-30 m tall with a trunk up to 1 m diameter. It has a rounded crown and distinctive bark with ridges that appear to have shiny stripes down the center. The leaves are lobed with 7-11 lobes and bristle tips, turning red in autumn.",
+                ecologicalImportance: "Red oaks provide food and shelter for many species of birds and mammals. The acorns are an important food source for wildlife. The tree is also important for timber production.",
+                leaves: "Alternate, simple, 4-8 inches long, with 7-11 lobes with bristle tips, sinuses extend halfway to midvein. Dark green above, paler below.",
+                bark: "Dark gray to black, with broad, shiny ridges separated by shallow fissures. The ridges appear to have shiny stripes down the center.",
+                flowersFruits: "Male flowers are yellow-green catkins. Female flowers are small spikes. Acorns are 3/4 to 1 1/4 inches long, with a shallow, saucer-shaped cup covering 1/4 of the nut.",
+                similarSpecies: [
+                    { name: "Black Oak", scientific: "Quercus velutina", image: "https://images.unsplash.com/photo-1598188306155-25ff400f21a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" },
+                    { name: "Scarlet Oak", scientific: "Quercus coccinea", image: "https://images.unsplash.com/photo-1491147334573-44cbb4602274?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" },
+                    { name: "Pin Oak", scientific: "Quercus palustris", image: "https://images.unsplash.com/photo-1512428813834-c702c79822a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" }
+                ]
+            },
+            "maple": {
+                commonName: "Sugar Maple",
+                scientificName: "Acer saccharum",
+                family: "Sapindaceae",
+                nativeRange: "Eastern Canada and northern United States",
+                conservationStatus: "Least Concern",
+                description: "The Sugar Maple is best known for its brilliant fall colors and for being the primary source of maple syrup. It typically grows 25-35 m tall with a dense, spreading crown. The leaves are palmately veined with 5 lobes and smooth margins, turning spectacular shades of yellow, orange, and red in autumn.",
+                ecologicalImportance: "Sugar maples are ecologically important as they provide food and habitat for many species. The flowers provide nectar for insects, the seeds feed birds and small mammals, and the dense foliage offers nesting sites for birds.",
+                leaves: "Opposite, simple, 3-6 inches long, 5-lobed with a few large teeth, bright green above, paler below. Brilliant fall colors of yellow, orange, and red.",
+                bark: "Young bark is smooth and gray, becoming darker and deeply furrowed into long irregular plates with age.",
+                flowersFruits: "Small yellow-green flowers appear in early spring before the leaves. The fruit is a pair of winged seeds (samaras) about 1 inch long.",
+                similarSpecies: [
+                    { name: "Red Maple", scientific: "Acer rubrum", image: "https://images.unsplash.com/photo-1512428813834-c702c79822a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" },
+                    { name: "Norway Maple", scientific: "Acer platanoides", image: "https://images.unsplash.com/photo-1491147334573-44cbb4602274?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" },
+                    { name: "Silver Maple", scientific: "Acer saccharinum", image: "https://images.unsplash.com/photo-1598188306155-25ff400f21a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" }
+                ]
+            },
+            "baobab": {
+                commonName: "African Baobab",
+                scientificName: "Adansonia digitata",
+                family: "Malvaceae",
+                nativeRange: "Sub-Saharan Africa",
+                conservationStatus: "Not Evaluated",
+                description: "The African Baobab is a massive, iconic tree with a thick, bottle-shaped trunk that can reach up to 25 m in height and 10 m in diameter. It has a sparse, rounded crown of branches during the dry season. The tree is deciduous, losing its leaves during the dry winter months.",
+                ecologicalImportance: "Baobabs are keystone species in dry African savannas. They provide food, water, and shelter for numerous animals. The flowers are pollinated by bats, and the fruits are eaten by many animals which disperse the seeds.",
+                leaves: "Compound leaves with 5-7 leaflets, each up to 10 cm long and 5 cm wide. Leaves are shed during the dry season.",
+                bark: "Smooth, reddish-brown to gray bark that can be up to 10 cm thick, helping protect the tree from fire.",
+                flowersFruits: "Large, white flowers up to 12 cm across, hanging on long stalks. The fruit is large (up to 25 cm long), ovoid, with a hard woody shell covered in yellowish-brown hairs.",
+                similarSpecies: [
+                    { name: "Bottle Tree", scientific: "Brachychiton rupestris", image: "https://images.unsplash.com/photo-1512428813834-c702c79822a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" },
+                    { name: "Monkey Bread Tree", scientific: "Adansonia grandidieri", image: "https://images.unsplash.com/photo-1491147334573-44cbb4602274?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" },
+                    { name: "Kapok Tree", scientific: "Ceiba pentandra", image: "https://images.unsplash.com/photo-1598188306155-25ff400f21a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" }
+                ]
+            }
+        };
+
+        // DOM elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        const browseBtn = document.getElementById('browse-btn');
+        const uploadSection = document.getElementById('upload-section');
+        const processingSection = document.getElementById('processing-section');
+        const resultSection = document.getElementById('result-section');
+        const progressBar = document.getElementById('progress-bar');
+        const newUploadBtn = document.getElementById('new-upload');
+        const resultImage = document.getElementById('result-image');
+        const saveResultBtn = document.getElementById('save-result');
+        const shareResultBtn = document.getElementById('share-result');
+        const similarSpeciesContainer = document.getElementById('similar-species');
+
+        // Event listeners
+        browseBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        dropzone.addEventListener('dragover', handleDragOver);
+        dropzone.addEventListener('dragleave', handleDragLeave);
+        dropzone.addEventListener('drop', handleDrop);
+        newUploadBtn.addEventListener('click', resetForm);
+        saveResultBtn.addEventListener('click', saveResult);
+        shareResultBtn.addEventListener('click', shareResult);
+
+        // Functions
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropzone.classList.add('active');
+        }
+
+        function handleDragLeave() {
+            dropzone.classList.remove('active');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropzone.classList.remove('active');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect({ target: fileInput });
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Check if file is an image
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file (JPG, PNG, WEBP)');
+                return;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size exceeds 10MB limit');
+                return;
+            }
+
+            // Show processing section
+            uploadSection.classList.add('hidden');
+            processingSection.classList.remove('hidden');
+
+            // Simulate AI processing with progress bar
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        processingSection.classList.add('hidden');
+                        showResults(file);
+                    }, 500);
+                }
+            }, 300);
+        }
+
+        function showResults(file) {
+            // Display uploaded image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                resultImage.src = e.target.result;
+                
+                // Randomly select a tree from our database (simulating AI identification)
+                const treeKeys = Object.keys(treeDatabase);
+                const randomKey = treeKeys[Math.floor(Math.random() * treeKeys.length)];
+                const treeData = treeDatabase[randomKey];
+                
+                // Populate tree data
+                document.getElementById('tree-name').textContent = treeData.commonName;
+                document.getElementById('scientific-name').textContent = treeData.scientificName;
+                document.getElementById('tree-family').textContent = treeData.family;
+                document.getElementById('native-range').textContent = treeData.nativeRange;
+                document.getElementById('conservation-status').textContent = treeData.conservationStatus;
+                document.getElementById('tree-description').textContent = treeData.description;
+                document.getElementById('ecological-importance').textContent = treeData.ecologicalImportance;
+                document.getElementById('leaves-info').textContent = treeData.leaves;
+                document.getElementById('bark-info').textContent = treeData.bark;
+                document.getElementById('flowers-fruits-info').textContent = treeData.flowersFruits;
+                
+                // Add similar species
+                similarSpeciesContainer.innerHTML = '';
+                treeData.similarSpecies.forEach(species => {
+                    const speciesElement = document.createElement('div');
+                    speciesElement.className = 'bg-gray-50 rounded-lg p-4 flex items-center';
+                    speciesElement.innerHTML = `
+                        <img src="${species.image}" alt="${species.name}" class="w-16 h-16 object-cover rounded-md mr-4">
+                        <div>
+                            <h5 class="font-medium text-gray-800">${species.name}</h5>
+                            <p class="text-sm text-gray-600">${species.scientific}</p>
+                        </div>
+                    `;
+                    similarSpeciesContainer.appendChild(speciesElement);
+                });
+                
+                // Show result section
+                resultSection.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetForm() {
+            fileInput.value = '';
+            resultSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            progressBar.style.width = '0%';
+        }
+
+        function saveResult() {
+            alert('Result saved to your account!');
+        }
+
+        function shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Tree Identification Result',
+                    text: `I identified a ${document.getElementById('tree-name').textContent} (${document.getElementById('scientific-name').textContent}) using TreeSpecies AI!`,
+                    url: window.location.href
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                alert('Web Share API not supported in your browser. Copy this link to share: ' + window.location.href);
+            }
+        }
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=vishu6213/intern" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
